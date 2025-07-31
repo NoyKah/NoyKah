@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IRHunter - Windows Artifact Investigator Demo</title>
+    <style>
+        /* IRHunter Demo Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0e1117;
+            color: #ffffff;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        :root {
+            --bg-primary: #0e1117;
+            --bg-secondary: #1c2128;
+            --bg-tertiary: #262c36;
+            --text-primary: #ffffff;
+            --text-secondary: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-cyan: #4dd0e1;
+            --accent-green: #81c784;
+            --accent-red: #e57373;
+            --accent-orange: #ffb74d;
+            --border: #30363d;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: var(--bg-primary);
+        }
+
+        .header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin: 0;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-left: 1rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 350px;
+            min-width: 350px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: var(--bg-primary);
+        }
+
+        .right-panel {
+            width: 400px;
+            min-width: 400px;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background-color: var(--bg-tertiary);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+
+        .status-critical {
+            background-color: rgba(229, 115, 115, 0.2);
+            color: var(--accent-red);
+        }
+
+        .status-high {
+            background-color: rgba(255, 183, 77, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .finding-item {
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .finding-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .mono {
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: var(--bg-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: var(--accent-cyan);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-cyan);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 0.75rem;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .status-bar {
+            background-color: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .demo-note {
+            background-color: rgba(77, 208, 225, 0.1);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-title">
+                <div class="header-icon">🔍</div>
+                <h1>IRHunter</h1>
+                <span class="header-subtitle">Windows Artifact Investigator</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary">🎮 Demo Mode Active</button>
+                <button class="btn btn-secondary">Settings</button>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Left Panel - Upload -->
+            <div class="left-panel">
+                <div class="card">
+                    <h3 class="card-title">Evidence Upload</h3>
+                    <div class="demo-note">
+                        <strong>Demo Mode:</strong> Simulated evidence files loaded
+                    </div>
+                    
+                    <div class="upload-zone">
+                        <div class="upload-icon">📁</div>
+                        <p>Drop forensic files here or click to browse</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
+                            Supports: .zip, .rar, .7z, .tar
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">Uploaded Files (3)</h4>
+                        <div class="file-item">
+                            <div>
+                                <div style="font-weight: 500;">KAPE_Triage.zip</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">2.5 GB</div>
+                            </div>
+                        </div>
+                        <div class="file-item">
+                            <div>
+                                <div style="font-weight: 500;">EventLogs.7z</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">890 MB</div>
+                            </div>
+                        </div>
+                        <div class="file-item">
+                            <div>
+                                <div style="font-weight: 500;">Registry_Hives.tar</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">156 MB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel - Investigation Report -->
+            <div class="center-panel">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <div>
+                            <h2 class="card-title">📋 Investigation Report</h2>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+                                Case ID: <span class="mono">CASE-DEMO-001</span> | 
+                                Generated: <span id="current-time"></span>
+                            </p>
+                        </div>
+                        <button class="btn btn-secondary">📄 Export PDF</button>
+                    </div>
+
+                    <!-- Executive Summary -->
+                    <div style="margin-bottom: 2rem; padding: 1.5rem; background-color: var(--bg-tertiary); border-radius: 8px; border-left: 4px solid var(--accent-cyan);">
+                        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">Executive Summary</h3>
+                        <p style="line-height: 1.6; color: var(--text-secondary);">
+                            Comprehensive analysis revealed a sophisticated malware infection with multiple stages. The attack began with a social engineering vector (fake PDF editor), progressed through initial execution, established persistence via registry modifications, and employed defense evasion techniques including self-deletion of the original payload.
+                        </p>
+                    </div>
+
+                    <!-- Investigation Findings -->
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Investigation Findings</h3>
+                        
+                        <div class="finding-item">
+                            <div class="finding-header">
+                                <h4>Initial Access</h4>
+                                <span class="status-indicator status-high">HIGH</span>
+                            </div>
+                            <p style="margin-bottom: 1rem; line-height: 1.6;">
+                                Suspicious PDF editor application (PDFEditor.exe) was downloaded and executed from user Downloads folder.
+                            </p>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>Evidence:</strong> <span class="mono">Prefetch analysis, Process execution timeline (Event ID 4688)</span>
+                            </div>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1566.001</span>
+                            </div>
+                        </div>
+
+                        <div class="finding-item">
+                            <div class="finding-header">
+                                <h4>Execution</h4>
+                                <span class="status-indicator status-critical">CRITICAL</span>
+                            </div>
+                            <p style="margin-bottom: 1rem; line-height: 1.6;">
+                                PowerShell executed with bypassed execution policy, indicating potential malicious script execution.
+                            </p>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>Evidence:</strong> <span class="mono">Event Log 4688, Command line: -ExecutionPolicy Bypass</span>
+                            </div>
+                            <div style="font-size: 0.9rem;">
+                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1059.001</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indicators of Compromise -->
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Indicators of Compromise (IoCs)</h3>
+                        <div style="background-color: var(--bg-tertiary); border-radius: 8px; padding: 1.5rem;">
+                            <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
+                                PDFEditor.exe (SHA256: a1b2c3d4e5f67890...)
+                            </div>
+                            <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
+                                Registry: HKLM\Software\Microsoft\Windows\CurrentVersion\Run\UpdatePDFService
+                            </div>
+                            <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
+                                PowerShell script: C:\temp\update.ps1
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Case Description -->
+            <div class="right-panel">
+                <div class="card" style="height: calc(100vh - 200px);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 class="card-title">Case Description</h3>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); background-color: var(--bg-tertiary); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                            Ctrl+Enter to analyze
+                        </span>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);">
+                            Incident Summary
+                        </label>
+                        <textarea class="textarea" readonly>Employee downloaded suspicious PDF editor from unknown site; malware self-deleted after execution.
+
+Initial Analysis:
+- User reported downloading "PDFEditor_Pro.zip" from external website
+- EDR alert triggered by PDFEditor.exe execution at 14:23:15
+- Subsequent PowerShell activity detected with bypassed execution policy
+- Original executable disappeared after execution
+- User mentioned system became "sluggish" after installation
+
+Suspected Activities:
+- Initial access via social engineering
+- Potential persistence mechanisms
+- Defense evasion techniques
+- Possible data exfiltration</textarea>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 2rem;" disabled>
+                        🔍 Analysis Complete
+                    </button>
+
+                    <div style="background-color: var(--bg-tertiary); border-radius: 6px; padding: 1rem; border-left: 3px solid var(--accent-cyan);">
+                        <h4 style="color: var(--accent-cyan); font-size: 0.9rem; margin-bottom: 0.75rem; font-weight: 600;">Investigation Focus Areas</h4>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.4;">
+                                <strong style="color: var(--accent-cyan);">Initial Access:</strong> Email attachments, downloads, removable media
+                            </li>
+                            <li style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.4;">
+                                <strong style="color: var(--accent-cyan);">Execution:</strong> Process execution, PowerShell, scripts
+                            </li>
+                            <li style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.4;">
+                                <strong style="color: var(--accent-cyan);">Persistence:</strong> Registry keys, scheduled tasks, services
+                            </li>
+                            <li style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+                                <strong style="color: var(--accent-cyan);">Defense Evasion:</strong> File deletion, process injection
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-green);"></span>
+                    <span>3 evidence files loaded</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span>v1.0.0</span>
+                <span id="current-time-status"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamps
+        function updateTime() {
+            const now = new Date().toLocaleString();
+            document.getElementById('current-time').textContent = now;
+            document.getElementById('current-time-status').textContent = new Date().toLocaleTimeString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
