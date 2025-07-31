@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4dd0e1" />
+    <meta name="description" content="IRHunter - AI-driven DFIR investigation tool for Windows artifact analysis" />
+    <title>IRHunter - Windows Artifact Investigator</title>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <style>
+        /* Critical CSS for faster loading */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0e1117;
+            color: #ffffff;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+        
+        #root {
+            height: 100vh;
+        }
+        
+        /* Loading spinner */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #0e1117;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #30363d;
+            border-top: 3px solid #4dd0e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        .loading-text {
+            color: #c9d1d9;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <div style="padding: 2rem; text-align: center; color: #e57373;">
+            <h1>🔍 IRHunter</h1>
+            <p>JavaScript is required to run the IRHunter DFIR investigation tool.</p>
+            <p>Please enable JavaScript in your browser and refresh the page.</p>
+        </div>
+    </noscript>
+    
+    <div id="root">
+        <!-- Loading screen shown while React loads -->
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Initializing IRHunter...</div>
+        </div>
+    </div>
+</body>
+</html>
