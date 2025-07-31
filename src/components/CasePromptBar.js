@@ -26,24 +26,28 @@ const CasePromptBar = ({ value, onChange, onSubmit, isAnalyzing }) => {
         <form onSubmit={handleSubmit} className="prompt-form">
           <div className="form-group">
             <label className="form-label">
-              Incident Summary
+              Investigator Questions
             </label>
             <textarea
               className="form-textarea case-input"
-              placeholder="Describe the incident to guide the AI investigation...
+              placeholder="Ask IRHunter specific questions about the uploaded artifacts...
 
-Examples:
-• Employee downloaded suspicious PDF editor from unknown site; malware self-deleted after execution
-• User clicked on email attachment, system started behaving slowly
-• EDR alert triggered by PowerShell execution
-• Suspicious network traffic detected to unknown IP
+Example Questions:
+• What processes were executed between 14:00 and 15:00?
+• Find evidence of PowerShell execution with bypassed policies
+• Show me all registry modifications in the last 24 hours
+• What files were created in the Downloads folder?
+• Are there any suspicious network connections?
+• Find evidence of persistence mechanisms
+• What scheduled tasks were created recently?
+• Show me browser download history for malicious files
+• Find evidence of file deletion or anti-forensics
+• What users logged in during the incident timeframe?
 
-Be specific about:
-- Initial vector (email, download, USB, etc.)
-- Suspicious files or processes
-- Timeline of events
-- User actions
-- EDR/AV alerts"
+Multiple Questions (separate with line breaks):
+- Question 1: Look for suspicious executable files
+- Question 2: Find registry Run key modifications
+- Question 3: Check for PowerShell script execution"
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -65,7 +69,7 @@ Be specific about:
                 </>
               ) : (
                 <>
-                  🔍 Start Investigation
+                  🔍 Analyze Artifacts
                 </>
               )}
             </button>

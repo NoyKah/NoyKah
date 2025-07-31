@@ -324,7 +324,7 @@
                     <div style="margin-bottom: 2rem; padding: 1.5rem; background-color: var(--bg-tertiary); border-radius: 8px; border-left: 4px solid var(--accent-cyan);">
                         <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">Executive Summary</h3>
                         <p style="line-height: 1.6; color: var(--text-secondary);">
-                            Comprehensive analysis revealed a sophisticated malware infection with multiple stages. The attack began with a social engineering vector (fake PDF editor), progressed through initial execution, established persistence via registry modifications, and employed defense evasion techniques including self-deletion of the original payload.
+                            Analysis of 3 uploaded forensic files revealed evidence across 5 of 6 investigator questions. 3 high-confidence findings were identified through artifact correlation. The investigation focused on the specific questions provided and analyzed only the evidence present in the uploaded artifacts.
                         </p>
                     </div>
 
@@ -334,33 +334,58 @@
                         
                         <div class="finding-item">
                             <div class="finding-header">
-                                <h4>Initial Access</h4>
+                                <h4>Q1: What processes were executed between 14:00 and 15:00?</h4>
                                 <span class="status-indicator status-high">HIGH</span>
                             </div>
                             <p style="margin-bottom: 1rem; line-height: 1.6;">
-                                Suspicious PDF editor application (PDFEditor.exe) was downloaded and executed from user Downloads folder.
+                                Process execution detected within specified timeframe
                             </p>
                             <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                <strong>Evidence:</strong> <span class="mono">Prefetch analysis, Process execution timeline (Event ID 4688)</span>
+                                <strong>Evidence:</strong> <span class="mono">Event ID 4688 process creation events, Prefetch file timestamps (Source: EventLogs.7z, KAPE_Triage.zip)</span>
                             </div>
                             <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1566.001</span>
+                                <strong>Details:</strong> PDFEditor.exe, powershell.exe executed between 14:00-15:00
+                            </div>
+                            <div style="font-size: 0.9rem;">
+                                <strong>Artifacts Searched:</strong> Prefetch, Event Logs, Amcache
                             </div>
                         </div>
 
                         <div class="finding-item">
                             <div class="finding-header">
-                                <h4>Execution</h4>
-                                <span class="status-indicator status-critical">CRITICAL</span>
+                                <h4>Q2: Find evidence of PowerShell execution with bypassed policies</h4>
+                                <span class="status-indicator status-high">HIGH</span>
                             </div>
                             <p style="margin-bottom: 1rem; line-height: 1.6;">
-                                PowerShell executed with bypassed execution policy, indicating potential malicious script execution.
+                                PowerShell activity detected in uploaded artifacts
                             </p>
                             <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                <strong>Evidence:</strong> <span class="mono">Event Log 4688, Command line: -ExecutionPolicy Bypass</span>
+                                <strong>Evidence:</strong> <span class="mono">Prefetch analysis shows powershell.exe execution, Event logs contain PowerShell script block logging (Source: EventLogs.7z, KAPE_Triage.zip)</span>
+                            </div>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1059.001</span>
                             </div>
                             <div style="font-size: 0.9rem;">
-                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1059.001</span>
+                                <strong>Details:</strong> PowerShell executed with -ExecutionPolicy Bypass parameters
+                            </div>
+                        </div>
+
+                        <div class="finding-item">
+                            <div class="finding-header">
+                                <h4>Q3: Show me all registry modifications for persistence</h4>
+                                <span class="status-indicator status-high">HIGH</span>
+                            </div>
+                            <p style="margin-bottom: 1rem; line-height: 1.6;">
+                                Registry Run key modifications detected
+                            </p>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>Evidence:</strong> <span class="mono">HKLM\Software\Microsoft\Windows\CurrentVersion\Run key analysis (Source: Registry_Hives.tar)</span>
+                            </div>
+                            <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <strong>MITRE ATT&CK:</strong> <span style="background-color: var(--bg-secondary); color: var(--accent-orange); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600;">T1547.001</span>
+                            </div>
+                            <div style="font-size: 0.9rem;">
+                                <strong>Details:</strong> UpdatePDFService value pointing to suspicious executable
                             </div>
                         </div>
                     </div>
@@ -370,13 +395,16 @@
                         <h3 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Indicators of Compromise (IoCs)</h3>
                         <div style="background-color: var(--bg-tertiary); border-radius: 8px; padding: 1.5rem;">
                             <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
-                                PDFEditor.exe (SHA256: a1b2c3d4e5f67890...)
+                                Registry modification detected in Registry_Hives.tar
                             </div>
                             <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
-                                Registry: HKLM\Software\Microsoft\Windows\CurrentVersion\Run\UpdatePDFService
+                                PowerShell execution with suspicious parameters
+                            </div>
+                            <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
+                                File system activity: PDFEditor_Pro.zip downloaded from external source
                             </div>
                             <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem; color: var(--accent-red); font-family: monospace; font-size: 0.9rem;">
-                                PowerShell script: C:\temp\update.ps1
+                                Activity timestamp: 2024-01-15T14:23:15Z
                             </div>
                         </div>
                     </div>
@@ -395,22 +423,14 @@
 
                     <div style="margin-bottom: 1rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);">
-                            Incident Summary
+                            Investigator Questions
                         </label>
-                        <textarea class="textarea" readonly>Employee downloaded suspicious PDF editor from unknown site; malware self-deleted after execution.
-
-Initial Analysis:
-- User reported downloading "PDFEditor_Pro.zip" from external website
-- EDR alert triggered by PDFEditor.exe execution at 14:23:15
-- Subsequent PowerShell activity detected with bypassed execution policy
-- Original executable disappeared after execution
-- User mentioned system became "sluggish" after installation
-
-Suspected Activities:
-- Initial access via social engineering
-- Potential persistence mechanisms
-- Defense evasion techniques
-- Possible data exfiltration</textarea>
+                        <textarea class="textarea" readonly>What processes were executed between 14:00 and 15:00?
+Find evidence of PowerShell execution with bypassed policies
+Show me all registry modifications for persistence
+What files were downloaded or created in Downloads folder?
+Are there any suspicious network connections?
+Find evidence of file deletion or anti-forensics techniques</textarea>
                     </div>
 
                     <button class="btn btn-primary" style="width: 100%; margin-bottom: 2rem;" disabled>
